@@ -27,9 +27,19 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
 
     const { kcClsx } = getKcClsx({ doUseDefaultCss, classes });
     const { msgStr } = i18n;
-    const { realm, message, isAppInitiatedAction } = kcContext;
+    const { realm, message, isAppInitiatedAction, client } = kcContext;
 
-    // Theme state
+    const clientUrl = (client as any).baseUrl || (client as any).rootUrl;
+    let clientHostname: string | null = null;
+    try {
+        clientHostname = clientUrl ? new URL(clientUrl).hostname : null;
+    } catch {
+        clientHostname = null;
+    }
+    const faviconUrl = clientHostname 
+        ? `https://www.google.com/s2/favicons?sz=128&domain=${clientHostname}`
+        : null;
+
     const [isDark, setIsDark] = useState(true);
 
     useEffect(() => {
@@ -68,18 +78,26 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
             isDark ? "bg-black text-white" : "bg-white text-black"
         )}>
             {/* Left Column: Form Section */}
-            <div className="w-full sm:w-1/2 xl:w-1/3 flex flex-col justify-between p-8 sm:p-12 md:p-16 lg:p-20 relative z-10 overflow-y-auto">
-                <div className="flex-1 flex flex-col justify-center items-center py-12">
+            <div className="w-full sm:w-1/2 xl:w-1/3 flex flex-col justify-between p-4 sm:p-12 md:p-16 lg:p-20 relative z-10 overflow-y-auto">
+                <div className="flex-1 flex flex-col justify-center items-center py-2 sm:py-12">
                     <div className="max-w-[420px] w-full flex flex-col items-center">
                         
                         {/* Header Icons / Logos */}
-                        <div className="flex items-center justify-center space-x-6 mb-12">
-                            {/* P Logo */}
+                        <div className="flex items-center justify-center space-x-6 mb-4 sm:mb-12 scale-90 sm:scale-100">
+                            {/* Keycloak Logo */}
                             <div className={clsx(
-                                "w-14 h-14 rounded-[20px] flex items-center justify-center shadow-sm transition-colors",
-                                isDark ? "bg-[#262626] text-white" : "bg-[#F2F2F2] text-black"
+                                "w-14 h-14 rounded-[20px] flex items-center justify-center shadow-sm transition-colors overflow-hidden",
+                                isDark ? "bg-[#262626]" : "bg-[#F2F2F2]"
                             )}>
-                                <span className="text-3xl font-black">P</span>
+                                <img 
+                                    src={`${kcContext.url.resourcesPath}/keycloak.png`} 
+                                    alt="Keycloak" 
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                        if (!e.currentTarget.src.includes('keycloak.png')) return;
+                                        e.currentTarget.src = "keycloak.png";
+                                    }}
+                                />
                             </div>
                             
                             {/* Elegant Thin Squiggly Arrow */}
@@ -93,35 +111,46 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
                                 </svg>
                             </div>
 
-                            {/* Secondary Logo */}
+                            {/* Client Favicon Logo */}
                             <div className={clsx(
-                                "w-14 h-14 rounded-[20px] flex items-center justify-center p-3 shadow-md transition-colors",
+                                "w-14 h-14 rounded-[20px] flex items-center justify-center p-2 shadow-md transition-colors overflow-hidden",
                                 isDark ? "bg-white text-black" : "bg-black text-white"
                             )}>
-                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                                    <path d="M12 7C9.23858 7 7 9.23858 7 12C7 14.7614 9.23858 17 12 17" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
-                                </svg>
+                                {faviconUrl ? (
+                                    <img 
+                                        src={faviconUrl} 
+                                        alt={client.name || client.clientId} 
+                                        className="w-10 h-10 object-contain"
+                                        onError={(e) => (e.currentTarget.style.display = 'none')}
+                                    />
+                                ) : (
+                                    <span className={clsx(
+                                        "text-xl font-bold",
+                                        isDark ? "text-black" : "text-white"
+                                    )}>
+                                        {(client.name || client.clientId).charAt(0).toUpperCase()}
+                                    </span>
+                                )}
                             </div>
                         </div>
 
                         {/* Title */}
-                        <h1 className="text-4xl font-serif font-bold text-center mb-4 tracking-tight leading-tight">
+                        <h1 className="text-3xl sm:text-4xl font-serif font-bold text-center mb-4 sm:mb-4 tracking-tight leading-tight">
                             {headerNode}
                         </h1>
                         
-                        {/* Subtext */}
+                        {/* Subtext - HIDDEN ON MOBILE */}
                         <p className={clsx(
-                            "text-center mb-10 text-[15px] leading-relaxed max-w-[340px] transition-colors",
+                            "hidden sm:block text-center mb-10 text-[15px] leading-relaxed max-w-[340px] transition-colors",
                             isDark ? "text-[#A3A3A3]" : "text-[#666]"
                         )}>
-                            Do you want to sign in to <span className={clsx("font-bold", isDark ? "text-white" : "text-black")}>{realm.displayName || realm.name}</span> with your Pocket ID Local account?
+                            Do you want to sign in to <span className={clsx("font-bold", isDark ? "text-white" : "text-black")}>{realm.displayName || realm.name}</span> with your Keycloak account?
                         </p>
 
                         {/* System Messages */}
                         {displayMessage && message !== undefined && (message.type !== "warning" || !isAppInitiatedAction) && (
                             <div className={clsx(
-                                "w-full mb-8 p-4 rounded-xl text-sm border font-medium transition-colors",
+                                "w-full mb-4 p-4 rounded-xl text-sm border font-medium transition-colors",
                                 isDark 
                                     ? (message.type === "error" ? "bg-red-950/30 text-red-400 border-red-900/50" : 
                                        message.type === "success" ? "bg-green-950/30 text-green-400 border-green-900/50" :
@@ -140,13 +169,13 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
                         </div>
 
                         {socialProvidersNode && (
-                            <div className="mt-10 w-full">
+                            <div className="mt-4 w-full">
                                 {socialProvidersNode}
                             </div>
                         )}
 
                         {displayInfo && infoNode && (
-                            <div className="mt-10 w-full text-center">
+                            <div className="mt-4 w-full text-center">
                                 {infoNode}
                             </div>
                         )}
@@ -154,7 +183,7 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
                 </div>
 
                 {/* Footer and Theme Toggle */}
-                <div className="flex flex-col items-center space-y-6">
+                <div className="flex flex-col items-center space-y-4">
                     <button 
                         onClick={toggleTheme}
                         className={clsx(
@@ -165,7 +194,7 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
                         {isDark ? "Light Mode" : "Dark Mode"}
                     </button>
                     <div className={clsx(
-                        "text-center text-[10px] font-bold mt-8 uppercase tracking-[0.3em] transition-colors",
+                        "hidden sm:block text-center text-[10px] font-bold mt-4 uppercase tracking-[0.3em] transition-colors",
                         isDark ? "text-[#404040]" : "text-[#D4D4D4]"
                     )}>
                         Alternative Sign In Methods

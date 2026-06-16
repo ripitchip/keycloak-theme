@@ -97,10 +97,10 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
                             }}
                             action={url.loginAction}
                             method="post"
-                            className="space-y-6"
+                            className="space-y-4 sm:space-y-6"
                         >
                             {!usernameHidden && (
-                                <div className="space-y-2.5">
+                                <div className="space-y-2">
                                     <label htmlFor="username" className={clsx("text-[13px] font-bold uppercase tracking-wider ml-1 transition-colors", isDark ? "text-[#737373]" : "text-gray-400")}>
                                         {!realm.loginWithEmailAllowed
                                             ? msg("username")
@@ -130,7 +130,7 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
                                 </div>
                             )}
 
-                            <div className="space-y-2.5">
+                            <div className="space-y-2">
                                 <div className="flex items-center justify-between ml-1">
                                     <label htmlFor="password" className={clsx("text-[13px] font-bold uppercase tracking-wider transition-colors", isDark ? "text-[#737373]" : "text-gray-400")}>
                                         {msg("password")}
@@ -180,35 +180,35 @@ export default function Login(props: PageProps<Extract<KcContext, { pageId: "log
                                 )}
                             </div>
 
-                            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                            <div className="flex flex-col sm:flex-row gap-4 pt-2 sm:pt-4">
                                 <button
                                     type="button"
                                     onClick={() => window.history.back()}
                                     className={clsx(
-                                        "flex-1 inline-flex items-center justify-center rounded-xl text-sm font-bold transition-all border",
+                                        "flex-1 inline-flex items-center justify-center rounded-xl text-base font-bold transition-all border",
                                         isDark 
                                             ? "border-[#262626] bg-black text-[#737373] hover:bg-[#0A0A0A] hover:text-white" 
                                             : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-black"
                                     )}
-                                    style={{ height: '48px' }}
+                                    style={{ height: 'var(--button-height, 48px)' }}
                                 >
                                     Cancel
                                 </button>
-                                <input
+                                <button
                                     tabIndex={7}
                                     disabled={isLoginButtonDisabled}
                                     name="login"
                                     id="kc-login"
                                     type="submit"
-                                    value="Sign in"
                                     className={clsx(
-                                        "flex-1 inline-flex items-center justify-center rounded-xl text-sm font-bold transition-all border-none cursor-pointer",
+                                        "flex-1 inline-flex items-center justify-center rounded-xl text-base font-bold transition-all border-none cursor-pointer",
                                         isDark 
                                             ? "bg-white text-black hover:bg-[#E5E5E5] shadow-lg shadow-white/5" 
                                             : "bg-black text-white hover:bg-[#262626] shadow-lg shadow-black/5"
                                     )}
-                                    style={{ height: '48px' }}
-                                />
+                                >
+                                    Sign in
+                                </button>
                             </div>
                         </form>
                     )}
