@@ -29,6 +29,11 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
     const { msgStr } = i18n;
     const { realm, message, isAppInitiatedAction, client } = kcContext;
 
+    // Client logo retrieval logic
+    // 1. Look for "logoUri" attribute (Logo URL field in Keycloak)
+    // 2. Fallback to favicon if not defined
+    const clientLogoUrlFromKeycloak = client.attributes?.logoUri;
+
     const clientUrl = (client as any).baseUrl || (client as any).rootUrl;
     let clientHostname: string | null = null;
     try {
@@ -39,6 +44,8 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
     const faviconUrl = clientHostname 
         ? `https://www.google.com/s2/favicons?sz=128&domain=${clientHostname}`
         : null;
+    
+    const clientLogoToDisplay = clientLogoUrlFromKeycloak || faviconUrl;
 
     const [isDark, setIsDark] = useState(true);
 
@@ -116,9 +123,9 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
                                 "w-14 h-14 rounded-[20px] flex items-center justify-center p-2 shadow-md transition-colors overflow-hidden",
                                 isDark ? "bg-white text-black" : "bg-black text-white"
                             )}>
-                                {faviconUrl ? (
+                                {clientLogoToDisplay ? (
                                     <img 
-                                        src={faviconUrl} 
+                                        src={clientLogoToDisplay} 
                                         alt={client.name || client.clientId} 
                                         className="w-10 h-10 object-contain"
                                         onError={(e) => (e.currentTarget.style.display = 'none')}
