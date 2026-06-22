@@ -32,9 +32,9 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
     // Client logo retrieval logic
     // 1. Look for "logoUri" attribute (Logo URL field in Keycloak)
     // 2. Fallback to favicon if not defined
-    const clientLogoUrlFromKeycloak = client.attributes?.logoUri;
+    const clientLogoUrlFromKeycloak = client?.attributes?.logoUri;
 
-    const clientUrl = (client as any).baseUrl || (client as any).rootUrl;
+    const clientUrl = client ? ((client as any).baseUrl || (client as any).rootUrl) : undefined;
     let clientHostname: string | null = null;
     try {
         clientHostname = clientUrl ? new URL(clientUrl).hostname : null;
@@ -123,7 +123,7 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
                                 "w-14 h-14 rounded-[20px] flex items-center justify-center p-2 shadow-md transition-colors overflow-hidden",
                                 isDark ? "bg-white text-black" : "bg-black text-white"
                             )}>
-                                {clientLogoToDisplay ? (
+                                {clientLogoToDisplay && client ? (
                                     <img 
                                         src={clientLogoToDisplay} 
                                         alt={client.name || client.clientId} 
@@ -135,7 +135,7 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
                                         "text-xl font-bold",
                                         isDark ? "text-black" : "text-white"
                                     )}>
-                                        {(client.name || client.clientId).charAt(0).toUpperCase()}
+                                        {client ? (client.name || client.clientId).charAt(0).toUpperCase() : "K"}
                                     </span>
                                 )}
                             </div>
